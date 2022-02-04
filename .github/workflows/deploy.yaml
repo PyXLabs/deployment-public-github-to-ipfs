@@ -26,6 +26,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SERVER_PORT_PYXMAID }} -H ${{ secrets.SERVER_HOST_PYXMAID }} >> ~/.ssh/known_hosts
           workingpath=$(echo $RANDOM | md5sum | head -c 10; echo;)
-          ssh -p ${{ secrets.SERVER_PORT_PYXMAID }} ${{ secrets.SERVER_USERNAME_PYXMAID }}@${{ secrets.SERVER_HOST_PYXMAID }} "mkdir -p ~/deployment$workingpath"
+          cd publish/
+          tar czf - * | ssh -p ${{ secrets.SERVER_PORT_PYXMAID }} ${{ secrets.SERVER_USERNAME_PYXMAID }}@${{ secrets.SERVER_HOST_PYXMAID }} "mkdir -p ~/deployment$workingpath && cd ~/deployment$workingpath && tar xzf -"
           scp -r -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT_PYXMAID }} ./publish/* ${{ secrets.SERVER_USERNAME_PYXMAID }}@${{ secrets.SERVER_HOST_PYXMAID }}:~/deployment$workingpath
           ssh -p ${{ secrets.SERVER_PORT_PYXMAID }} ${{ secrets.SERVER_USERNAME_PYXMAID }}@${{ secrets.SERVER_HOST_PYXMAID }} "cd ~/scripts && ./deployment.sh -p ~/deployment$workingpath"
